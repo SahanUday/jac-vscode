@@ -41,6 +41,21 @@
           "type": "boolean",
           "default": false,
           "description": "Enable developer mode to use experimental language server features"
+        },
+        "jaclang-extension.enableJacDefinitionProvider": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Go to Definition for Python imports that reference Jac modules"
+        },
+        "jaclang-extension.enableSemanticHighlighting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic highlighting for Jac module imports in Python files"
+        },
+        "jaclang-extension.suppressPylanceDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suppress Pylance missing import errors for resolved Jac modules"
         }
       }
     },
@@ -56,6 +71,18 @@
       {
         "command": "jaclang-extension.toggleDeveloperMode",
         "title": "Jac: Toggle Developer Mode"
+      },
+      {
+        "command": "jaclang-extension.toggleJacDefinitionProvider",
+        "title": "Jac: Toggle Python->Jac Go to Definition"
+      },
+      {
+        "command": "jaclang-extension.toggleSemanticHighlighting",
+        "title": "Jac: Toggle Semantic Highlighting"
+      },
+      {
+        "command": "jaclang-extension.toggleDiagnosticSuppression",
+        "title": "Jac: Toggle Diagnostic Suppression"
       },
       {
         "command": "jaclang-extension.restartLanguageServer",
@@ -126,6 +153,45 @@
         "language": "jac",
         "scopeName": "source.jac",
         "path": "./syntaxes/jac.tmLanguage.json"
+      }
+    ],
+    "semanticTokenTypes": [
+      {
+        "id": "jacModule",
+        "description": "A Jac module import in Python files"
+      }
+    ],
+    "semanticTokenModifiers": [
+      {
+        "id": "resolved",
+        "description": "A resolved Jac module import"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "jacModule.resolved": [
+            "entity.name.type.jac"
+          ]
+        }
+      }
+    ],
+    "colors": [
+      {
+        "id": "jacModule.foreground",
+        "description": "Color for Jac module imports",
+        "defaults": {
+          "dark": "#4EC9B0",
+          "light": "#267f99",
+          "highContrast": "#4EC9B0"
+        }
+      }
+    ],
+    "themes": [
+      {
+        "id": "jac-semantic-highlighting",
+        "label": "Jac Semantic Highlighting",
+        "path": "./themes/jac-semantic-tokens.json"
       }
     ],
     "debuggers": [

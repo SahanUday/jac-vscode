@@ -69,6 +69,42 @@ export function registerAllCommands(context: vscode.ExtensionContext, envManager
         })
     );
     context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.TOGGLE_JAC_DEFINITION, async () => {
+            const config = vscode.workspace.getConfiguration('jaclang-extension');
+            const currentMode = config.get<boolean>('enableJacDefinitionProvider', true);
+
+            // Toggle the mode
+            await config.update('enableJacDefinitionProvider', !currentMode, vscode.ConfigurationTarget.Global);
+            
+            const status = !currentMode ? 'enabled' : 'disabled';
+            vscode.window.showInformationMessage(`Jac Definition Provider ${status}. Please reload VS Code for changes to take effect.`);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.TOGGLE_SEMANTIC_HIGHLIGHTING, async () => {
+            const config = vscode.workspace.getConfiguration('jaclang-extension');
+            const currentMode = config.get<boolean>('enableSemanticHighlighting', true);
+
+            // Toggle the mode
+            await config.update('enableSemanticHighlighting', !currentMode, vscode.ConfigurationTarget.Global);
+            
+            const status = !currentMode ? 'enabled' : 'disabled';
+            vscode.window.showInformationMessage(`Jac Semantic Highlighting ${status}. Please reload VS Code for changes to take effect.`);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.TOGGLE_DIAGNOSTIC_SUPPRESSION, async () => {
+            const config = vscode.workspace.getConfiguration('jaclang-extension');
+            const currentMode = config.get<boolean>('suppressPylanceDiagnostics', true);
+
+            // Toggle the mode
+            await config.update('suppressPylanceDiagnostics', !currentMode, vscode.ConfigurationTarget.Global);
+            
+            const status = !currentMode ? 'enabled' : 'disabled';
+            vscode.window.showInformationMessage(`Pylance Diagnostic Suppression ${status}. Please reload VS Code for changes to take effect.`);
+        })
+    );
+    context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.RESTART_LSP, async () => {
             const lspManager = getLspManager();
             if (lspManager) {

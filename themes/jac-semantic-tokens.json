@@ -1,0 +1,22 @@
+{
+    "type": "dark",
+    "colors": {
+        "jacModule.foreground": "#4EC9B0"
+    },
+    "semanticTokenColors": {
+        "jacModule": "#4EC9B0",
+        "jacModule.resolved": "#4EC9B0"
+    },
+    "tokenColors": [
+        {
+            "name": "Jac Module Import",
+            "scope": [
+                "entity.name.type.jac"
+            ],
+            "settings": {
+                "foreground": "#4EC9B0",
+                "fontStyle": "bold"
+            }
+        }
+    ]
+}
