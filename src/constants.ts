@@ -10,4 +10,5 @@ export const COMMANDS = {
     GET_JAC_PATH: 'extension.jaclang-extension.getJacPath',
     GET_PYTHON_PATH: 'extension.jaclang-extension.getPythonPath',
     VISUALIZE: 'jaclang-extension.visualizeGraph',
+    INSPECT_SCOPES: 'jaclang-extension.inspectTokenScopes',
 };
