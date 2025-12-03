@@ -523,24 +523,34 @@
 			]
 		},
 		"jsx-string-double-quoted": {
-			"name": "string.quoted.double.jsx.jac",
+			"name": "string.quoted.double.jac",
 			"begin": "\"",
 			"end": "\"",
-			"patterns": [
-				{
-					"include": "#string-content"
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.jac"
 				}
-			]
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.jac"
+				}
+			}
 		},
 		"jsx-string-single-quoted": {
-			"name": "string.quoted.single.jsx.jac",
+			"name": "string.quoted.single.jac",
 			"begin": "'",
 			"end": "'",
-			"patterns": [
-				{
-					"include": "#string-content"
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.jac"
 				}
-			]
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.jac"
+				}
+			}
 		},
 		"jsx-evaluated-code": {
 			"name": "meta.embedded.expression.jsx.jac",

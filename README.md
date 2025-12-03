@@ -72,4 +72,15 @@ To visualize the Jac graph while debugging, open the graph visualize view using 
 - Document symbols, workspace symbols
 - Variables hint, and documentation on hover
 - Diagnostics
-- Diagnostics
+
+# Developer Mode
+
+Developer mode enables additional tools for extension development and debugging. To enable it:
+
+1. Open Command Palette (`Ctrl+Shift+P`)
+2. Run `Jac: Toggle Developer Mode`
+
+When enabled, the following features become available:
+
+- **Restart Language Server** - Button in editor title bar to restart the LSP server
+- **Inspect Token Scopes** - Dumps all TextMate token scopes for the current Jac file to help debug syntax highlighting

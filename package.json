@@ -76,6 +76,10 @@
         "command": "jaclang-extension.serveCurrentFile",
         "title": "Jac: Serve",
         "icon": "$(cloud)"
+      },
+      {
+        "command": "jaclang-extension.inspectTokenScopes",
+        "title": "Jac: Inspect Token Scopes"
       }
     ],
     "menus": {
@@ -101,6 +105,12 @@
           "command": "jaclang-extension.serveCurrentFile",
           "group": "navigation@99",
           "when": "resourceLangId == jac && config.jaclang-extension.showServeCommand"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "jaclang-extension.inspectTokenScopes",
+          "when": "config.jaclang-extension.developerMode"
         }
       ]
     },
@@ -147,10 +157,17 @@
                 "items": {
                   "type": "string"
                 },
-                "default": ["run", "${file}"]
+                "default": [
+                  "run",
+                  "${file}"
+                ]
               },
               "console": {
-                "enum": ["internalConsole", "integratedTerminal", "externalTerminal"],
+                "enum": [
+                  "internalConsole",
+                  "integratedTerminal",
+                  "externalTerminal"
+                ],
                 "description": "Where to launch the debug target",
                 "default": "integratedTerminal"
               },
@@ -213,7 +230,9 @@
     "ms-python.python"
   ],
   "dependencies": {
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^9.0.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

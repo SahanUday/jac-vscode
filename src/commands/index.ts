@@ -3,6 +3,7 @@ import { runJacCommandForCurrentFile } from '../utils';
 import { COMMANDS } from '../constants';
 import { getLspManager } from '../extension';
 import { EnvManager } from '../environment/manager';
+import { inspectTokenScopesHandler } from './inspectTokenScopes';
 
 export function registerAllCommands(context: vscode.ExtensionContext, envManager: EnvManager) {
     context.subscriptions.push(
@@ -81,6 +82,13 @@ export function registerAllCommands(context: vscode.ExtensionContext, envManager
             } else {
                 vscode.window.showErrorMessage('Language Server not available for restart.');
             }
+        })
+    );
+
+    // Inspect Token Scopes command - dumps all TextMate token scopes for the current Jac file
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.INSPECT_SCOPES, async () => {
+            await inspectTokenScopesHandler(context);
         })
     );
 }
