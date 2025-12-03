@@ -326,6 +326,9 @@
 					"include": "#function-call"
 				},
 				{
+					"include": "#jsx"
+				},
+				{
 					"include": "#literal"
 				},
 				{
@@ -339,9 +342,6 @@
 				},
 				{
 					"include": "#string"
-				},
-				{
-					"include": "#jsx"
 				}
 			]
 		},
@@ -351,7 +351,16 @@
 					"include": "#jsx-tag-fragment"
 				},
 				{
-					"include": "#jsx-tag"
+					"include": "#jsx-closing-tag-component"
+				},
+				{
+					"include": "#jsx-closing-tag-html"
+				},
+				{
+					"include": "#jsx-tag-component"
+				},
+				{
+					"include": "#jsx-tag-html"
 				}
 			]
 		},
@@ -375,16 +384,46 @@
 				}
 			]
 		},
-		"jsx-tag": {
-			"name": "meta.jsx.jac",
-			"begin": "(?x)\n  (<)\n  (?:\n    ([_$[:alpha:]][-_$[:alnum:]]*(?:\\.[_$[:alpha:]][-_$[:alnum:]]*)*)\n  )\n",
+		"jsx-closing-tag-component": {
+			"name": "meta.jsx.component.close.jac",
+			"match": "(</)([A-Z][a-zA-Z0-9_$]*)(>)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.begin.jsx.jac"
+				},
+				"2": {
+					"name": "support.class.component.jsx.jac"
+				},
+				"3": {
+					"name": "punctuation.definition.tag.end.jsx.jac"
+				}
+			}
+		},
+		"jsx-closing-tag-html": {
+			"name": "meta.jsx.html.close.jac",
+			"match": "(</)([a-z][a-zA-Z0-9_-]*)(>)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.begin.jsx.jac"
+				},
+				"2": {
+					"name": "entity.name.tag.html.jsx.jac"
+				},
+				"3": {
+					"name": "punctuation.definition.tag.end.jsx.jac"
+				}
+			}
+		},
+		"jsx-tag-component": {
+			"name": "meta.jsx.component.jac",
+			"begin": "(<)([A-Z][a-zA-Z0-9_$]*)(?=\\s|/?>)",
 			"end": "(/?>)",
 			"beginCaptures": {
 				"1": {
 					"name": "punctuation.definition.tag.begin.jsx.jac"
 				},
 				"2": {
-					"name": "entity.name.tag.jsx.jac"
+					"name": "support.class.component.jsx.jac"
 				}
 			},
 			"endCaptures": {
@@ -395,23 +434,57 @@
 			"patterns": [
 				{
 					"include": "#jsx-tag-attributes"
+				}
+			]
+		},
+		"jsx-tag-html": {
+			"name": "meta.jsx.html.jac",
+			"begin": "(<)([a-z][a-zA-Z0-9_-]*)(?=\\s|/?>)",
+			"end": "(/?>)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.tag.begin.jsx.jac"
 				},
+				"2": {
+					"name": "entity.name.tag.html.jsx.jac"
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.tag.end.jsx.jac"
+				}
+			},
+			"patterns": [
 				{
-					"include": "#jsx-tag-in-expression"
+					"include": "#jsx-tag-attributes"
 				}
 			]
 		},
 		"jsx-tag-attributes": {
 			"patterns": [
 				{
-					"include": "#jsx-tag-attribute-name"
-				},
-				{
-					"include": "#jsx-tag-attribute-assignment"
-				},
-				{
 					"include": "#jsx-spread-attribute"
 				},
+				{
+					"include": "#jsx-attribute-with-value"
+				},
+				{
+					"include": "#jsx-attribute-boolean"
+				}
+			]
+		},
+		"jsx-attribute-with-value": {
+			"begin": "([_$[:alpha:]][-_$[:alnum:]]*)\\s*(=)",
+			"end": "(?=[\\s/>])|(?<=[\"'}])",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.other.attribute-name.jsx.jac"
+				},
+				"2": {
+					"name": "keyword.operator.assignment.jsx.jac"
+				}
+			},
+			"patterns": [
 				{
 					"include": "#jsx-string-double-quoted"
 				},
@@ -423,13 +496,9 @@
 				}
 			]
 		},
-		"jsx-tag-attribute-name": {
+		"jsx-attribute-boolean": {
 			"name": "entity.other.attribute-name.jsx.jac",
-			"match": "(?x)\n  [_$[:alpha:]][-_$[:alnum:]]*\n"
-		},
-		"jsx-tag-attribute-assignment": {
-			"name": "keyword.operator.assignment.jsx.jac",
-			"match": "="
+			"match": "([_$[:alpha:]][-_$[:alnum:]]*)(?=\\s|/?>)"
 		},
 		"jsx-spread-attribute": {
 			"begin": "(\\{)(\\.\\.\\.)",
@@ -489,6 +558,37 @@
 			},
 			"patterns": [
 				{
+					"include": "#jsx-nested-braces"
+				},
+				{
+					"include": "#jsx"
+				},
+				{
+					"include": "#general"
+				}
+			]
+		},
+		"jsx-nested-braces": {
+			"begin": "\\{",
+			"end": "\\}",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.block.jac"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.block.jac"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#jsx-nested-braces"
+				},
+				{
+					"include": "#jsx"
+				},
+				{
 					"include": "#general"
 				}
 			]
@@ -508,10 +608,22 @@
 					"include": "#jsx-tag-fragment"
 				},
 				{
-					"include": "#jsx-tag"
+					"include": "#jsx-closing-tag-component"
+				},
+				{
+					"include": "#jsx-closing-tag-html"
+				},
+				{
+					"include": "#jsx-tag-component"
+				},
+				{
+					"include": "#jsx-tag-html"
 				},
 				{
 					"include": "#jsx-evaluated-code"
+				},
+				{
+					"include": "#comments"
 				},
 				{
 					"include": "#jsx-text"
@@ -825,6 +937,9 @@
 		"expression-bare": {
 			"comment": "valid Python expressions w/o comments and line continuation",
 			"patterns": [
+				{
+					"include": "#jsx"
+				},
 				{
 					"include": "#illegal-anno"
 				},
