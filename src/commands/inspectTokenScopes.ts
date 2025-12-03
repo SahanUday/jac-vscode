@@ -11,18 +11,11 @@ let onigurumaInitialized = false;
  * Initialize the oniguruma WASM library required for TextMate grammar parsing.
  * This only needs to be done once per session.
  */
-async function initOniguruma(context: vscode.ExtensionContext): Promise<void> {
+async function initOnigurumaWithPath(wasmPath: string): Promise<void> {
     if (onigurumaInitialized) {
         return;
     }
 
-    const wasmPath = path.join(
-        context.extensionPath,
-        'node_modules',
-        'vscode-oniguruma',
-        'release',
-        'onig.wasm'
-    );
     const wasmBin = fs.readFileSync(wasmPath).buffer;
     await oniguruma.loadWASM(wasmBin);
     onigurumaInitialized = true;
@@ -31,15 +24,68 @@ async function initOniguruma(context: vscode.ExtensionContext): Promise<void> {
 /**
  * Create an Oniguruma scanner from the given patterns.
  */
-function createOnigScanner(patterns: string[]): oniguruma.OnigScanner {
+export function createOnigScanner(patterns: string[]): oniguruma.OnigScanner {
     return new oniguruma.OnigScanner(patterns);
 }
 
 /**
  * Create an Oniguruma string from the given source string.
  */
-function createOnigString(s: string): oniguruma.OnigString {
+export function createOnigString(s: string): oniguruma.OnigString {
     return new oniguruma.OnigString(s);
+}
+
+/**
+ * Tokenize content using the Jac grammar.
+ * @param content The content to tokenize
+ * @param grammarPath Path to the jac.tmLanguage.json file
+ * @param wasmPath Path to the onig.wasm file
+ * @returns A map of token text to their scopes
+ */
+export async function tokenizeContent(
+    content: string,
+    grammarPath: string,
+    wasmPath: string
+): Promise<Map<string, string[]>> {
+    await initOnigurumaWithPath(wasmPath);
+
+    const grammarContent = fs.readFileSync(grammarPath, 'utf-8');
+    const grammarData = JSON.parse(grammarContent);
+
+    const registry = new vsctm.Registry({
+        onigLib: Promise.resolve({
+            createOnigScanner,
+            createOnigString,
+        }),
+        loadGrammar: async (scopeName: string) => {
+            if (scopeName === 'source.jac') {
+                return grammarData;
+            }
+            return null;
+        },
+    });
+
+    const grammar = await registry.loadGrammar('source.jac');
+    if (!grammar) {
+        throw new Error('Failed to load grammar');
+    }
+
+    const tokenMap = new Map<string, string[]>();
+    let ruleStack = vsctm.INITIAL;
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+        const lineTokens = grammar.tokenizeLine(line, ruleStack);
+        for (const token of lineTokens.tokens) {
+            const tokenText = line.substring(token.startIndex, token.endIndex).trim();
+            if (tokenText) {
+                tokenMap.set(tokenText, token.scopes);
+            }
+        }
+        ruleStack = lineTokens.ruleStack;
+    }
+
+    return tokenMap;
 }
 
 /**
@@ -85,7 +131,14 @@ export async function inspectTokenScopesHandler(context: vscode.ExtensionContext
 
     try {
         // Initialize oniguruma WASM
-        await initOniguruma(context);
+        const wasmPath = path.join(
+            context.extensionPath,
+            'node_modules',
+            'vscode-oniguruma',
+            'release',
+            'onig.wasm'
+        );
+        await initOnigurumaWithPath(wasmPath);
 
         // Load the Jac TextMate grammar
         const grammarPath = path.join(context.extensionPath, 'syntaxes', 'jac.tmLanguage.json');
