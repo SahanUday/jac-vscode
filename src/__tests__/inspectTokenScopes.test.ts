@@ -61,7 +61,7 @@ describe('inspectTokenScopesHandler', () => {
 
     // Reset activeTextEditor to undefined
     (vscode.window as any).activeTextEditor = undefined;
-    
+
     // Setup createOutputChannel to return the mock
     (vscode.window.createOutputChannel as jest.Mock).mockReturnValue(mockOutputChannel);
   });
@@ -89,7 +89,7 @@ describe('inspectTokenScopesHandler', () => {
 
     // Mock vscode-textmate Registry with tokens for the actual app.jac content
     const vsctm = require('vscode-textmate');
-    
+
     vsctm.Registry.mockImplementation(() => ({
       loadGrammar: jest.fn().mockResolvedValue({
         tokenizeLine: jest.fn((line: string) => {
@@ -169,14 +169,14 @@ describe('inspectTokenScopesHandler', () => {
 
     // Verify output channel was created
     expect(vscode.window.createOutputChannel).toHaveBeenCalledWith('Jac Token Scopes');
-    
+
     // Verify header was written
     expect(appendLineCalls[0]).toBe('Token Scopes for: app.jac');
-    
+
     // Verify 'with' keyword token output (line 5 in app.jac)
     expect(appendLineCalls).toContain('with: 5:1 - 5:5:1-5');
     expect(appendLineCalls).toContain('  scopes: source.jac, keyword.control.jac');
-    
+
     // Verify 'print' builtin function token output (line 6 in app.jac)
     expect(appendLineCalls).toContain('print: 6:5 - 6:10:5-10');
     expect(appendLineCalls).toContain('  scopes: source.jac, support.function.builtin.jac');
