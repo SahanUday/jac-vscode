@@ -36,17 +36,43 @@ export function createOnigString(s: string): oniguruma.OnigString {
 }
 
 /**
+ * Interface for a tokenized token with position info
+ */
+export interface TokenInfo {
+    text: string;
+    line: number;
+    startCol: number;
+    endCol: number;
+    scopes: string[];
+}
+
+/**
+ * Location key format: "line:startCol-endCol" (1-based)
+ */
+export type TokenLocation = string;
+
+/**
+ * Result of tokenization - maps location to token info
+ */
+export interface TokenizeResult {
+    /** Map of "line:startCol-endCol" -> TokenInfo */
+    byLocation: Map<TokenLocation, TokenInfo>;
+    /** Array of all tokens in order */
+    tokens: TokenInfo[];
+}
+
+/**
  * Tokenize content using the Jac grammar.
  * @param content The content to tokenize
  * @param grammarPath Path to the jac.tmLanguage.json file
  * @param wasmPath Path to the onig.wasm file
- * @returns A map of token text to their scopes
+ * @returns TokenizeResult with tokens indexed by location
  */
 export async function tokenizeContent(
     content: string,
     grammarPath: string,
     wasmPath: string
-): Promise<Map<string, string[]>> {
+): Promise<TokenizeResult> {
     await initOnigurumaWithPath(wasmPath);
 
     const grammarContent = fs.readFileSync(grammarPath, 'utf-8');
@@ -70,33 +96,44 @@ export async function tokenizeContent(
         throw new Error('Failed to load grammar');
     }
 
-    const tokenMap = new Map<string, string[]>();
+    const byLocation = new Map<TokenLocation, TokenInfo>();
+    const tokens: TokenInfo[] = [];
     let ruleStack = vsctm.INITIAL;
     const lines = content.split('\n');
 
-    for (const line of lines) {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+        const line = lines[lineIndex];
+        const lineNumber = lineIndex + 1; // 1-based
+
         const lineTokens = grammar.tokenizeLine(line, ruleStack);
+        
         for (const token of lineTokens.tokens) {
-            const tokenText = line.substring(token.startIndex, token.endIndex).trim();
-            if (tokenText) {
-                tokenMap.set(tokenText, token.scopes);
+            const tokenText = line.substring(token.startIndex, token.endIndex);
+            // Skip whitespace-only tokens
+            if (tokenText.trim() === '') {
+                continue;
             }
+
+            const startCol = token.startIndex + 1; // 1-based
+            const endCol = token.endIndex + 1;     // 1-based
+            const location: TokenLocation = `${lineNumber}:${startCol}-${endCol}`;
+
+            const tokenInfo: TokenInfo = {
+                text: tokenText,
+                line: lineNumber,
+                startCol,
+                endCol,
+                scopes: token.scopes
+            };
+
+            byLocation.set(location, tokenInfo);
+            tokens.push(tokenInfo);
         }
+        
         ruleStack = lineTokens.ruleStack;
     }
 
-    return tokenMap;
-}
-
-/**
- * Interface for a tokenized token with position info
- */
-interface TokenInfo {
-    text: string;
-    line: number;
-    startCol: number;
-    endCol: number;
-    scopes: string[];
+    return { byLocation, tokens };
 }
 
 /**
@@ -132,7 +169,7 @@ export async function inspectTokenScopesHandler(context: vscode.ExtensionContext
     try {
         // Initialize oniguruma WASM
         const wasmPath = path.join(
-            context.extensionPath,
+            context.extensionPath, 
             'node_modules',
             'vscode-oniguruma',
             'release',
